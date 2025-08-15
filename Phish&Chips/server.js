@@ -65,6 +65,9 @@ async function analyzeURL(targetUrl) {
   results.totalScore = totalScore;
   results.overallGrade = getGradeFromScore(totalScore);
 
+  // 콘솔 로그 추가
+console.log(`\n[총점] ${totalScore}점 (등급: ${results.overallGrade})\n`);
+
   return results;
 }
 
