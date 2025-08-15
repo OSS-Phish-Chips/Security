@@ -4,6 +4,8 @@ const { checkURLRules } = require('./rules/urlRules');
 const { checkHeaderRules } = require('./rules/headerRules');
 const { checkSSLRules } = require('./rules/sslRules');
 const { checkVulnerabilityRules } = require('./rules/vulnRules');
+const { checkWhoisRules } = require('./rules/whoisRules');
+const { checkDnsRules } = require('./rules/dnsRules');
 const { getGradeFromScore } = require('./utils/gradeUtil');
 
 const app = express();
@@ -41,6 +43,20 @@ async function analyzeURL(targetUrl) {
     grade: getGradeFromScore(vulnResult.score),
     messages: vulnResult.messages
   };
+
+  const whoisResult = await checkWhoisRules(targetUrl);
+  results.details.whois = {
+    score: whoisResult.score,
+    grade: getGradeFromScore(whoisResult.score),
+    messages: whoisResult.details
+  }
+
+  const dnsResult = await checkDnsRules(targetUrl);
+  results.details.dns = {
+    score: dnsResult.score,
+    grade: getGradeFromScore(dnsResult.score),
+    messages: dnsResult.details
+  }
 
   const totalScore = Object.values(results.details).reduce(
     (sum, section) => sum + section.score,

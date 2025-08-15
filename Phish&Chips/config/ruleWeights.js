@@ -23,6 +23,22 @@ module.exports = {
     vulnXSS: 25,
     vulnClickjacking: 25,
     vulnFileUpload: 25,
-    vulnDirListing: 25
+    vulnDirListing: 25,
+
+    // whois
+    whoisRecentDomain: 30,
+    whoisShortRegistration: 25,
+    whoisRegistrantPrivacy: 20,
+    whoisRiskyCountry: 25,
+    whoisMissingCreatedDate: 10,
+    whoisMissingExpiresDate: 10,
+
+    // dns
+    dnsSpfMissing: 20,
+    dnsDmarcMissing: 20,
+    dnsNsUnreliable: 30,
+    dnsCnameDeprecated: 15,
+    dnsAUnstable: 10,
+    dnsMxMissing: 5,
   };
   
