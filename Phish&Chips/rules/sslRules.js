@@ -6,6 +6,17 @@ const ruleWeights = require("../config/ruleWeights");
 async function getSSLAnalysis(hostname) {
   const apiBase = "https://api.ssllabs.com/api/v3/analyze";
 
+  // 0) 캐시 먼저 확인 (최근 결과 재사용)
+  for (let i = 0; i < 3; i++) {
+    const { data } = await axios.get(`${apiBase}?host=${hostname}&fromCache=on&maxAge=24`);
+    if (data.status === "READY") return data;
+    if (data.status === "IN_PROGRESS") {
+      await new Promise(r => setTimeout(r, 5000));
+      continue;
+    }
+    break;
+  }
+
   // 1️⃣ 분석 요청 시작
   await axios.get(`${apiBase}?host=${hostname}&publish=off&all=done&startNew=on`);
 
