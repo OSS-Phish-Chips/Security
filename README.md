@@ -1,4 +1,8 @@
 # 보안 룰 설명
+본 시스템은 웹사이트의 다양한 보안 요소를 정량적으로 평가하기 위해 룰 기반 분석 기법을 도입한다. 
+이를 위해 rules/ 디렉터리 내에 각 보안 영역별 검사 모듈을 구성하였다. 
+각 모듈의 주요 기능은 다음과 같다.
+
 
 ## 1. URL 검사 모듈 (checkURLRules.js)
 
@@ -9,6 +13,7 @@
 1) HTTPS 사용 여부 – 비암호화 HTTP 사용 시 위험
 2) 민감 경로 포함 여부 – /admin, /login, phpmyadmin, .git, config 등
 3) 쿼리 파라미터 위험 패턴 – =, ', --, <, > 포함 여부 (인젝션 가능성)
+
 
 ## 2. HTTP 헤더 검사 모듈 (checkHeaderRules.js)
 
@@ -22,6 +27,7 @@ HTTP 응답 헤더 설정을 점검하여 클릭재킹, XSS, 콘텐츠 스니핑
 4) X-Content-Type-Options – 콘텐츠 타입 스니핑 방지
 5) CORS – Access-Control-Allow-Origin이 *일 경우 위험
 
+
 ## 3. SSL 인증서 검사 모듈 (checkSSLRules.js)
 
 ### 목적:
@@ -31,6 +37,7 @@ HTTPS 및 SSL/TLS 인증서의 신뢰성과 유효성을 확인.
 1) 만료 여부 – 만료된 인증서 또는 만료 임박 인증서
 2) 발급자 신뢰성 – Let's Encrypt, DigiCert, Google Trust Services, Amazon 등 신뢰 여부
 3) API 실패 시 로컬 TLS 검사 – 로컬 소켓을 이용한 인증서 검증
+
 
 ## 4. DNS 검사 모듈 (checkDnsRules.js)
 
@@ -45,6 +52,7 @@ DNS 레코드와 네임서버 신뢰도를 분석하여 도메인 안정성과 �
 5) A 레코드 및 PTR – Fast Flux, 클라우드 안정성 확인
 6) MX 레코드 – 이메일 서버 존재 여부
 
+
 ## 5. 취약점 검사 모듈 (checkVulnerabilityRules.js)
 
 ### 목적:
@@ -55,6 +63,7 @@ DNS 레코드와 네임서버 신뢰도를 분석하여 도메인 안정성과 �
 2) Clickjacking 보호 – X-Frame-Options 미설정
 3) 파일 업로드 경로 노출 – /upload, /files 등
 4) 디렉토리 리스팅 노출 – Index of, Directory Listing, Parent Directory 확인
+
 
 ## 6. WHOIS 정보 검사 모듈 (checkWhoisRules.js)
 
