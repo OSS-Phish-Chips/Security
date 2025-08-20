@@ -11,6 +11,17 @@ const { getGradeFromScore } = require('./utils/gradeUtil');
 const app = express();
 const PORT = 3000;
 
+const inflight = new Map(); 
+async function analyzeURLDeDup(url) {
+  if (inflight.has(url)) return inflight.get(url);
+  const p = (async () => {
+    try { return await analyzeURL(url); }
+    finally { inflight.delete(url); }
+  })();
+  inflight.set(url, p);
+  return p;
+}
+
 async function analyzeURL(targetUrl) {
   console.log(`\n[사이트 분석 시작] ${targetUrl}\n`);
 
@@ -58,15 +69,36 @@ async function analyzeURL(targetUrl) {
     messages: dnsResult.details
   }
 
-  const totalScore = Object.values(results.details).reduce(
-    (sum, section) => sum + section.score,
-    0
-  );
-  results.totalScore = totalScore;
-  results.overallGrade = getGradeFromScore(totalScore);
+  // -----------------------------
+  // 위험 합계 → 안전 점수 변환
+  // -----------------------------
+  const sections = Object.values(results.details);
+  const sectionCount = sections.length;
+  const MAX_PER_SECTION = 100;
+  const MAX_TOTAL = MAX_PER_SECTION * sectionCount;
 
-  // 콘솔 로그 추가
-console.log(`\n[총점] ${totalScore}점 (등급: ${results.overallGrade})\n`);
+  const totalRisk = sections.reduce((sum, s) => sum + (Number(s.score) || 0), 0);
+  const totalSafe = Math.max(0, MAX_TOTAL - totalRisk);
+
+  const avgSafePerSection = totalSafe / sectionCount;
+  const safeScore100 = Math.round((totalSafe / MAX_TOTAL) * 100);
+
+  results.totalScore = Math.round(avgSafePerSection);
+  results.overallGrade = getGradeFromScore(totalRisk);
+
+  results.meta = {
+    sectionCount,
+    maxPerSection: MAX_PER_SECTION,
+    maxTotal: MAX_TOTAL,
+    totalRisk,                  // 0 ~ 600 (높을수록 위험)
+    totalSafe,                  // 0 ~ 600 (높을수록 안전)
+    avgSafePerSection: Math.round(avgSafePerSection), // 0~100
+    safeScore100                // 0~100 (백분율)
+  };
+
+  console.log(`[위험 합계] ${totalRisk}/${MAX_TOTAL}`);
+  console.log(`[안전 점수] ${totalSafe}/${MAX_TOTAL}  → 평균(0~100): ${results.totalScore}, 백분율: ${safeScore100}`);
+  console.log(`[등급(위험기준)] ${results.overallGrade}\n`);
 
   return results;
 }
@@ -79,7 +111,7 @@ app.get('/analyze', async (req, res) => {
   }
 
   try {
-    const result = await analyzeURL(url);
+    const result = await analyzeURLDeDup(url);
     res.json(result);
   } catch (err) {
     console.error(err);
