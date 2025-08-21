@@ -5,7 +5,8 @@
 
 
 ## 구조
-security/               # Express 기반 보안 분석 API 서버 (:3000)
+~~~text
+security/               # Express 기반 보안 분석 API 서버
 │
 ├─ config/              # 설정 관련
 │   └─ ruleWeights.js   # 보안 룰별 가중치 정의
@@ -25,6 +26,7 @@ security/               # Express 기반 보안 분석 API 서버 (:3000)
 ├─ server.js            # Express 서버 진입점 (라우팅, 룰 실행, 결과 종합)
 ├─ package.json         # 프로젝트 메타 및 의존성 관리
 └─ package-lock.json    # 의존성 버전 고정
+~~~
 
 ## 1. URL 검사 모듈 (checkURLRules.js)
 
