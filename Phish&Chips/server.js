@@ -1,4 +1,5 @@
 // server.js
+const cors = require('cors');
 const express = require('express');
 const { checkURLRules } = require('./rules/urlRules');
 const { checkHeaderRules } = require('./rules/headerRules');
@@ -11,6 +12,9 @@ const { getGradeFromScore } = require('./utils/gradeUtil');
 const app = express();
 const PORT = 3000;
 
+app.use(cors());
+app.use(express.json());
+
 const inflight = new Map(); 
 async function analyzeURLDeDup(url) {
   if (inflight.has(url)) return inflight.get(url);
@@ -20,6 +24,10 @@ async function analyzeURLDeDup(url) {
   })();
   inflight.set(url, p);
   return p;
+}
+
+function kstNow() {
+  return new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
 }
 
 async function analyzeURL(targetUrl) {
@@ -84,9 +92,11 @@ async function analyzeURL(targetUrl) {
   const safeScore100 = Math.round((totalSafe / MAX_TOTAL) * 100);
 
   results.totalScore = Math.round(avgSafePerSection);
+  results.score = results.totalScore;
   results.overallGrade = getGradeFromScore(totalRisk);
 
   results.meta = {
+    url: targetUrl,
     sectionCount,
     maxPerSection: MAX_PER_SECTION,
     maxTotal: MAX_TOTAL,
@@ -95,6 +105,9 @@ async function analyzeURL(targetUrl) {
     avgSafePerSection: Math.round(avgSafePerSection), // 0~100
     safeScore100                // 0~100 (백분율)
   };
+
+  results.analyzedAt = kstNow();
+  results.summary = "규칙 기반 종합 분석 결과입니다.";
 
   console.log(`[위험 합계] ${totalRisk}/${MAX_TOTAL}`);
   console.log(`[안전 점수] ${totalSafe}/${MAX_TOTAL}  → 평균(0~100): ${results.totalScore}, 백분율: ${safeScore100}`);
@@ -118,6 +131,8 @@ app.get('/analyze', async (req, res) => {
     res.status(500).json({ error: '분석 중 오류 발생' });
   }
 });
+
+app.get('/healthz', (_req, res) => res.json({ ok: true, at: kstNow() }));
 
 app.listen(PORT, () => {
   console.log(`✅ 서버 실행 중: http://localhost:${PORT}`);
