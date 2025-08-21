@@ -4,6 +4,28 @@
 각 모듈의 주요 기능은 다음과 같다.
 
 
+## 구조
+security/               # Express 기반 보안 분석 API 서버 (:3000)
+│
+├─ config/              # 설정 관련
+│   └─ ruleWeights.js   # 보안 룰별 가중치 정의
+│
+├─ rules/               # 보안 검사 규칙 모듈
+│   ├─ dnsRules.js      # DNS 관련 검사
+│   ├─ headerRules.js   # HTTP 보안 헤더 검사
+│   ├─ sslRules.js      # SSL/TLS 인증서 검사
+│   ├─ urlRules.js      # URL 패턴/구조 검사
+│   ├─ vulnRules.js     # 알려진 취약점/보안 패치 검사
+│   └─ whoisRules.js    # WHOIS/RDAP 기반 도메인 정보 검사
+│
+├─ utils/               # 공용 유틸리티
+│   ├─ fetchUtil.js     # API 요청/네트워크 처리 함수
+│   └─ gradeUtil.js     # 룰 검사 결과 점수화/등급화
+│
+├─ server.js            # Express 서버 진입점 (라우팅, 룰 실행, 결과 종합)
+├─ package.json         # 프로젝트 메타 및 의존성 관리
+└─ package-lock.json    # 의존성 버전 고정
+
 ## 1. URL 검사 모듈 (checkURLRules.js)
 
 ### 목적:
